@@ -1,0 +1,47 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Segoe UI, Roboto, sans-serif;
+  background: radial-gradient(circle at 20% 20%, #1e2c56, #090d1a);
+  color: #e2e8f0;
+}
+
+header {
+  padding: 12px 18px;
+  border-bottom: 1px solid #314168;
+  background: rgba(5, 10, 22, 0.8);
+}
+
+h1 {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+}
+
+p {
+  margin: 0;
+  color: #b7c5e0;
+}
+
+main {
+  padding: 12px;
+}
+
+#game {
+  width: min(1280px, 100%);
+  margin: 0 auto;
+  border: 2px solid #445a8b;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+canvas {
+  display: block;
+}
