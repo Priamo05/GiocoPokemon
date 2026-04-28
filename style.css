@@ -42,8 +42,8 @@ body {
   max-width: 100%;
   border: 2px solid #34456f;
   border-radius: 12px;
-  image-rendering: pixelated;
-  background: #000;
+  image-rendering: auto;
+  background: radial-gradient(circle at 30% 20%, #1a315f, #05060c);
 }
 
 #panel {

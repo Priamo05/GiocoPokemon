@@ -9,6 +9,8 @@
 
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
+  const BASE_WIDTH = 1280;
+  const BASE_HEIGHT = 720;
   const statusLine = document.getElementById('statusLine');
   const quickInfo = document.getElementById('quickInfo');
   const teamList = document.getElementById('teamList');
@@ -43,6 +45,17 @@
     { id: 9, name: 'Terron', type: 'Terra', baseHp: 50, atk: 17, def: 15, spd: 8, color: '#a1887f' },
     { id: 10, name: 'Spectry', type: 'Spettro', baseHp: 36, atk: 21, def: 7, spd: 19, color: '#ab47bc' },
   ];
+
+
+  function configureCanvas() {
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    canvas.width = Math.floor(BASE_WIDTH * dpr);
+    canvas.height = Math.floor(BASE_HEIGHT * dpr);
+    canvas.style.aspectRatio = `${BASE_WIDTH} / ${BASE_HEIGHT}`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+  }
 
   const state = {
     map: [],
@@ -418,67 +431,113 @@
   function drawTile(x, y, sx, sy) {
     const t = tileAt(x, y);
     const colors = {
-      [TILE_KIND.WATER]: '#1e5ea8',
-      [TILE_KIND.SAND]: '#d9c189',
-      [TILE_KIND.GRASS]: '#4e9f4f',
-      [TILE_KIND.FOREST]: '#2d7a39',
-      [TILE_KIND.MOUNTAIN]: '#646b73',
-      [TILE_KIND.ROAD]: '#9f8c6a',
-      [TILE_KIND.TALL_GRASS]: '#3f9d4a',
-      [TILE_KIND.CENTER]: '#f06292',
-      [TILE_KIND.SHOP]: '#ffca28',
+      [TILE_KIND.WATER]: ['#1c4f98', '#2b7fd9'],
+      [TILE_KIND.SAND]: ['#c9ad73', '#e7c98f'],
+      [TILE_KIND.GRASS]: ['#4c9140', '#71bc5d'],
+      [TILE_KIND.FOREST]: ['#276a37', '#3b9c55'],
+      [TILE_KIND.MOUNTAIN]: ['#5c636c', '#8b96a3'],
+      [TILE_KIND.ROAD]: ['#877352', '#b49b74'],
+      [TILE_KIND.TALL_GRASS]: ['#2e7d3e', '#49b85a'],
+      [TILE_KIND.CENTER]: ['#9c1f57', '#ff75af'],
+      [TILE_KIND.SHOP]: ['#a97700', '#ffd54f'],
     };
-    ctx.fillStyle = colors[t] || '#333';
+
+    const [from, to] = colors[t] || ['#333', '#555'];
+    const grad = ctx.createLinearGradient(sx, sy, sx + TILE, sy + TILE);
+    grad.addColorStop(0, from);
+    grad.addColorStop(1, to);
+    ctx.fillStyle = grad;
     ctx.fillRect(sx, sy, TILE, TILE);
 
     if (t === TILE_KIND.WATER) {
-      ctx.fillStyle = 'rgba(255,255,255,0.12)';
-      ctx.fillRect(sx + ((x + y) % 6), sy + 5, 10, 2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.32)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(sx + 9 + ((x + y) % 5), sy + 14, 5, 0, Math.PI * 1.6);
+      ctx.stroke();
     }
+
     if (t === TILE_KIND.TALL_GRASS || t === TILE_KIND.FOREST) {
-      ctx.fillStyle = 'rgba(0,0,0,0.15)';
-      for (let i = 0; i < 3; i++) {
-        ctx.fillRect(sx + 4 + i * 8, sy + 10 + (i % 2), 3, 12);
+      ctx.fillStyle = 'rgba(5, 39, 12, 0.24)';
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        const gx = sx + 4 + i * 6;
+        ctx.moveTo(gx, sy + 28);
+        ctx.lineTo(gx + 2, sy + 15 + (i % 2));
+        ctx.lineTo(gx + 4, sy + 28);
+        ctx.closePath();
+        ctx.fill();
       }
     }
+
     if (t === TILE_KIND.CENTER || t === TILE_KIND.SHOP) {
-      ctx.fillStyle = '#1c243d';
-      ctx.fillRect(sx + 6, sy + 8, 20, 18);
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(sx + 12, sy + 12, 8, 3);
+      ctx.fillStyle = '#162136';
+      ctx.fillRect(sx + 5, sy + 8, 22, 18);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(sx + 12, sy + 12, 8, 4);
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.fillRect(sx + 7, sy + 10, 18, 2);
     }
-    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+
+    ctx.strokeStyle = 'rgba(0,0,0,0.10)';
     ctx.strokeRect(sx, sy, TILE, TILE);
   }
 
   function drawMonSprite(mon, x, y, scale = 1.5, facing = 1) {
-    const w = 16 * scale;
-    const h = 16 * scale;
+    const radius = 13 * scale;
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(facing, 1);
-    ctx.fillStyle = mon.color;
-    ctx.fillRect(-w / 2, -h / 2 + 4, w, h - 4);
-    ctx.fillStyle = '#111';
-    ctx.fillRect(-w / 4, -h / 4, w / 8, h / 8);
-    ctx.fillRect(w / 8, -h / 4, w / 8, h / 8);
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(-w / 5, -h / 4 + 1, w / 18, h / 18);
-    ctx.fillRect(w / 7, -h / 4 + 1, w / 18, h / 18);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(-w / 3, h / 4, (2 * w) / 3, 2);
+
+    const body = ctx.createRadialGradient(-radius * 0.2, -radius * 0.35, radius * 0.3, 0, 0, radius);
+    body.addColorStop(0, '#ffffff');
+    body.addColorStop(0.08, mon.color);
+    body.addColorStop(1, '#0a0f1d');
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.ellipse(0, 4, radius, radius * 0.82, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#0b0f18';
+    ctx.beginPath();
+    ctx.arc(-radius * 0.24, -radius * 0.12, radius * 0.14, 0, Math.PI * 2);
+    ctx.arc(radius * 0.24, -radius * 0.12, radius * 0.14, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#f1f5ff';
+    ctx.beginPath();
+    ctx.arc(-radius * 0.19, -radius * 0.16, radius * 0.05, 0, Math.PI * 2);
+    ctx.arc(radius * 0.29, -radius * 0.16, radius * 0.05, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#06070d';
+    ctx.lineWidth = Math.max(1.4, scale * 0.6);
+    ctx.beginPath();
+    ctx.arc(0, radius * 0.13, radius * 0.33, 0, Math.PI);
+    ctx.stroke();
+
     ctx.restore();
   }
 
   function drawPlayer(px, py) {
-    ctx.fillStyle = '#f6f7fb';
-    ctx.fillRect(px + 10, py + 6, 12, 10);
-    ctx.fillStyle = '#d32f2f';
-    ctx.fillRect(px + 10, py + 3, 12, 5);
+    const bob = Math.sin(performance.now() * 0.012) * 1.3;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(px + 16, py + 27, 10, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(px + 9, py + 5 + bob, 14, 9);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(px + 9, py + 2 + bob, 14, 4);
     ctx.fillStyle = '#1e293b';
-    ctx.fillRect(px + 11, py + 16, 10, 12);
-    ctx.fillStyle = '#ffd180';
-    ctx.fillRect(px + 12, py + 8, 8, 7);
+    ctx.fillRect(px + 10, py + 14 + bob, 12, 12);
+    ctx.fillStyle = '#ffcc9f';
+    ctx.fillRect(px + 12, py + 8 + bob, 8, 6);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(px + 6, py + 11 + bob, 4, 9);
+    ctx.fillRect(px + 22, py + 11 + bob, 4, 9);
   }
 
   function drawWorld() {
@@ -510,7 +569,7 @@
   }
 
   function drawMinimap(camX, camY) {
-    const mmX = canvas.width - 178;
+    const mmX = BASE_WIDTH - 178;
     const mmY = 10;
     const mmW = 160;
     const mmH = 160;
@@ -556,9 +615,9 @@
     if (!b) return;
 
     ctx.fillStyle = '#0d111c';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
     ctx.fillStyle = '#23314f';
-    ctx.fillRect(0, canvas.height - 220, canvas.width, 220);
+    ctx.fillRect(0, BASE_HEIGHT - 220, BASE_WIDTH, 220);
 
     ctx.fillStyle = '#7aa95e';
     ctx.beginPath();
@@ -579,11 +638,11 @@
     const actions = ['[A]ttacco', '[P]ozione', '[B]all', '[F]uga'];
     ctx.fillStyle = '#e6edff';
     ctx.font = '22px sans-serif';
-    ctx.fillText(actions.join('   '), 30, canvas.height - 160);
+    ctx.fillText(actions.join('   '), 30, BASE_HEIGHT - 160);
 
     ctx.font = '18px sans-serif';
     const logs = b.log.slice(-4);
-    logs.forEach((l, i) => ctx.fillText(l, 30, canvas.height - 120 + i * 26));
+    logs.forEach((l, i) => ctx.fillText(l, 30, BASE_HEIGHT - 120 + i * 26));
   }
 
   function drawBar(x, y, w, h, label, hp, hpMax) {
@@ -661,7 +720,7 @@
     const dt = Math.min(0.05, (ts - lastTime) / 1000 || 0.016);
     lastTime = ts;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
 
     if (state.mode === 'world') {
       updateWorld(dt);
@@ -693,6 +752,8 @@
   });
 
   function init() {
+    configureCanvas();
+    window.addEventListener('resize', configureCanvas);
     generateMap();
     state.party.push(starter());
     queueMessage('Benvenuto! Esplora e diventa il miglior allenatore.');
