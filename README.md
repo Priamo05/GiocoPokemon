@@ -1,25 +1,27 @@
-# Gioco stile monster-catching (browser)
+# Monstermon - Phaser + TypeScript
 
-Questo progetto contiene un prototipo completo in singola pagina, ispirato ai classici JRPG monster-catching.
+Versione migrata a **Phaser 3 + TypeScript** (non più canvas raw HTML/JS puro).
 
 ## Avvio
 
-Apri `index.html` nel browser.
+```bash
+npm install
+npm run dev
+```
 
-## Contenuti
+Apri l'URL mostrato da Vite.
 
-- Mappa ampia procedurale (120x120 tile)
+## Feature
+
+- Mappa procedurale 160x160
 - Esplorazione top-down con collisioni
-- Erba alta e incontri casuali
-- Sistema di lotta a turni (attacco, cura, cattura, fuga)
-- Squadra, deposito, inventario e pokédex locale
-- Centro cura e negozio
-- Minimap e UI responsive
-- Sprite pixel originali generati via canvas (nessun asset esterno)
+- Incontri casuali in erba alta
+- Battaglie turn-based (attacco, pozione, ball, fuga)
+- Centro cura e shop
+- Minimap e HUD in scena
 
 ## Comandi
 
-- Movimento: `WASD` / frecce
-- Interazione: `E`
-- Corsa: `Shift`
-- Menu: `I`
+- Movimento: WASD / frecce
+- Interazione: E
+- Encounter test: I

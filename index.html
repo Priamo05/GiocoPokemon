@@ -3,36 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Monstermon - Adventure</title>
+    <title>Monstermon Phaser + TS</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="hud">
-      <div>
-        <strong>Monstermon</strong>
-        <div id="statusLine">Esplora, lotta e completa il dex.</div>
-      </div>
-      <div id="quickInfo"></div>
-    </div>
-
-    <div id="wrap">
-      <canvas id="game" width="1280" height="720" aria-label="Gioco monster-catching"></canvas>
-      <aside id="panel">
-        <h2>Squadra</h2>
-        <div id="teamList"></div>
-        <h2>Inventario</h2>
-        <div id="bagList"></div>
-        <h2>Dex</h2>
-        <div id="dexList"></div>
-        <h2>Legenda</h2>
-        <ul>
-          <li>E = interagisci</li>
-          <li>I = mostra/nascondi pannello</li>
-          <li>Shift = corsa</li>
-        </ul>
-      </aside>
-    </div>
-
-    <script src="main.js"></script>
+    <header>
+      <h1>Monstermon (Phaser + TypeScript)</h1>
+      <p>WASD/Frecce per muoverti, E per interagire, I per encounter rapido.</p>
+    </header>
+    <main>
+      <div id="game"></div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
